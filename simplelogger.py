@@ -1,32 +1,34 @@
-# SimpleLogger (SLogger) library for easy logging
+# SLogger (SimpleLogger) library for easy logging
 # Official SLogger repository - https://github.com/watermelon46/slogger
-#
 # Commands:
-#
+
 # log(text) - write anything in logs
 # info(text) - write info in logs
 # warn(text) - write warn in logs
 # error(text) - write error in logs
 # user(text) - write user input in logs
-# enable_printint(boolean) - enable additional printing logs in terminal
+# printing(boolean) - enable additional printing logs in terminal
 # get_current_time() - get current time in HOURS:MINUTES:SECONDS type
 # clear() - clear terminal
-# loadinganim(text, delay, cycles) - play loading animation
+
+class BuildInfo():
+    version = '1.1'
+    buildType = 'Release'
+    branding = 'SLogger'
+    githublink = 'https://github.com/watermelon46/slogger'
+
 
 
 from datetime import datetime
 from time import sleep
 from os import system
 
+logfile = open('latest.log', 'w+')
+logfile.truncate(0)
+
 def get_current_time():
     now = datetime.now()
     return now.strftime("%H:%M:%S")
-
-class BuildInfo():
-    version = '1.0'
-    buildType = 'Release'
-    branding = 'SimpleLogger'
-
 
 def clear():
     try:
@@ -34,52 +36,30 @@ def clear():
     except:
         print('\n' * 100)
 
-loading_symvols = '| / - \ '
-
-def loadinganim(text, delay=0.1, cycles=5):
-    for i in range(1, cycles):
-        for i in loading_symvols:
-            clear()
-            print(f'{text} {i}')
-            sleep(delay)
-
-logfile = open('latestlog.txt', 'w+')
-logfile.truncate(0)
-
-enable_printing = False
-
-def enable_printing(mode = True):
-    global enable_printing
-    enable_printing = bool(mode)
+enable_printing = True
 
 def log(text):
     logtext = f'[{get_current_time()}] [{BuildInfo.branding}] {text}'
     logfile.write(logtext + '\n')
-    if enable_printing:
-        print(logtext)
+    if enable_printing == True:
+        print(logtext, end='')
 
 def warn(text):
-    logtext = f'[{get_current_time()}] [{BuildInfo.branding}] [WARN] {text}'
-    logfile.write(logtext + '\n')
-    if enable_printing:
-        print(logtext)
+    log(f'[WARN] {text}')
 
 def error(text):
-    logtext = f'[{get_current_time()}] [{BuildInfo.branding}] [ERROR] {text}'
-    logfile.write(logtext + '\n')
-    if enable_printing:
-        print(logtext)
+    log(f'[ERROR] {text}')
 
 def info(text):
-    logtext = f'[{get_current_time()}] [{BuildInfo.branding}] [INFO] {text}'
-    logfile.write(logtext + '\n')
-    if enable_printing:
-        print(logtext)
+    log(f'[INFO] {text}')
 
 def user(text):
-    logtext = f'[{get_current_time()}] [{BuildInfo.branding}] [USER] {text}'
-    logfile.write(logtext + '\n')
-    if enable_printing:
-        print(logtext)
+    log(f'[USER] {text}')
 
-info(f'SLogger started. Version {BuildInfo.version} {BuildInfo.buildType}\n')
+def printing(mode = True):
+    global enable_printing
+    info('enable_printing changed to {mode}')
+    enable_printing = bool(mode)
+
+info(f'{BuildInfo.branding} {BuildInfo.version} {BuildInfo.buildType} started')
+
