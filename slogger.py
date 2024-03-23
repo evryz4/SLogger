@@ -1,60 +1,46 @@
-class BuildInfo():
-    version = '1.2'
-    buildType = 'Release'
-    branding = 'SLogger'
-    brandingInLogs = f'[{branding}]'
-    githublink = 'https://github.com/watermelon46/slogger'
-
 from datetime import datetime
 from time import sleep
 from os import system
+from enum import Enum
 
-logfile = open('latest.log', 'w+')
-logfile.truncate(0)
+class BuildInfo(Enum):
+    version = '1.2'
+    buildType = '[evryz4`s fork]'
+    githublink = 'https://github.com/evryz4/slogger'
+    githublinkforkedfrom = 'https://github.com/watermelon46/slogger'
 
-enable_printing = True
+class Logging:
+    def __init__(self, enable_printing: bool = True, branding: str = 'Slogger'):
+        """Initialize settings, create/clean log file"""
 
+        logfile = open('latest.log', 'w+')
+        logfile.truncate(0)
 
+        self._enable_printing = enable_printing
+        self._branding = branding
+        self._logfile = logfile
 
-def change_branding(newbranding = None):
-    """Change branding in logs from ''Slogger'' to your."""
-    BuildInfo.brandingInLogs = f'[{newbranding}]'
+    def log(self, type: str, text: str) -> None:
+        """Write log"""
 
-def log(text):
-    """Write anything in logs"""
-    now = datetime.now()
-    time = now.strftime("%H:%M:%S")
-    logtext = f'[{time}] {BuildInfo.brandingInLogs} {text}'
-    logfile.write(logtext + '\n')
-    if enable_printing == True:
-        print(logtext, end='')
+        now = datetime.now()
+        time = now.strftime("%H:%M:%S")
+        logtext = f'{self._branding} {BuildInfo.version.value} {BuildInfo.buildType.value} | {time} | [{type.upper()}] | {text}'
+        self._logfile.write(logtext + '\n')
 
-def warn(text):
-    """Write warn in logs"""
-    log(f'[WARN] {text}')
+        if self._enable_printing == True:
+            print(logtext)
 
-def error(text):
-    """Write error in logs"""
-    log(f'[ERROR] {text}')
+    def buildlog(self, type):
+        """Build your own log func with entered type
+        Returns lambda func"""
 
-def info(text):
-    """Write info in logs"""
-    log(f'[INFO] {text}')
-
-def user(text):
-    """Write user input in logs"""
-    log(f'[USER] {text}')
-
-def custom(logtype, text):
-    """Write custom log in logs"""
-    log(f'[{logtype}] {text}')
+        return lambda ftext: self.log(type.upper(), ftext)
     
-def printing(mode = True):
-    """Enable additional logs printing in terminal"""
-    global enable_printing
-    enable_printing = bool(mode)
-    info(f'enable_printing changed to {mode}')
-
-info(f'{BuildInfo.branding} {BuildInfo.version} {BuildInfo.buildType} started')
-if BuildInfo.buildType != 'Release':
-    warn(f'You are using unstable version of SLogger. Download stable from {BuildInfo.githublink}')
+    def decorator_log(self, func):
+        """Decorator | Write a log with returned value every function running"""
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            self.log('func', f'{func.__name__}() return: {result}')
+            return result
+        return wrapper
